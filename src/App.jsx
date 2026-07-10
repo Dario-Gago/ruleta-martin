@@ -11,6 +11,8 @@ const App = () => {
   const [spinCount, setSpinCount] = useState(0)
   const [isBlocked, setIsBlocked] = useState(false)
   const [activeOptions, setActiveOptions] = useState(options)
+  const [showResult, setShowResult] = useState(false)
+  const [result, setResult] = useState(null)
   const wheelRef = useRef(null)
 
   useEffect(() => {
@@ -58,6 +60,16 @@ const App = () => {
       const newCount = spinCount + 1
       setSpinCount(newCount)
       localStorage.setItem(STORAGE_KEY, newCount.toString())
+      
+      // Calcular qué opción ganó
+      const finalRotation = targetRotation % 360
+      const segmentAngle = 360 / activeOptions.length
+      // El puntero está en 270°, necesitamos encontrar qué segmento contiene ese ángulo
+      // Deshacemos la rotación: 270 - finalRotation
+      const pointerAngle = (270 - finalRotation + 360) % 360
+      const winningIndex = Math.floor(pointerAngle / segmentAngle)
+      setResult(activeOptions[winningIndex])
+      setShowResult(true)
       
       if (newCount === 1) {
         // Después del primer giro, eliminar "Nada ❌"
@@ -167,6 +179,24 @@ const App = () => {
         >
           🔄 Reiniciar
         </button>
+      )}
+      
+      {showResult && result && (
+        <div className="result-overlay" onClick={() => setShowResult(false)}>
+          <div className="result-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="result-icon">🎉</div>
+            <h2 className="result-title">¡Resultado!</h2>
+            <p className="result-text" style={{ color: result.color }}>
+              {result.label}
+            </p>
+            <button 
+              className="result-button"
+              onClick={() => setShowResult(false)}
+            >
+              ¡Entendido!
+            </button>
+          </div>
+        </div>
       )}
     </div>
   )
