@@ -10,7 +10,6 @@ const App = () => {
   const [isSpinning, setIsSpinning] = useState(false)
   const [spinCount, setSpinCount] = useState(0)
   const [isBlocked, setIsBlocked] = useState(false)
-  const [activeOptions, setActiveOptions] = useState(options)
   const [showResult, setShowResult] = useState(false)
   const [result, setResult] = useState(null)
   const wheelRef = useRef(null)
@@ -20,10 +19,6 @@ const App = () => {
     if (savedSpins) {
       const count = parseInt(savedSpins, 10)
       setSpinCount(count)
-      if (count >= 1) {
-        // Después del primer giro, eliminar "Nada ❌"
-        setActiveOptions(options.filter(opt => opt.label !== 'Nada ❌'))
-      }
       if (count >= 2) {
         setIsBlocked(true)
       }
@@ -44,9 +39,12 @@ const App = () => {
       // Punto medio del segmento 2: 180° + 45° = 225°
       segmentMidAngle = 225
     } else {
-      // Segundo giro: aleatorio entre 3 segmentos (120° cada uno)
-      const randomSegment = Math.floor(Math.random() * 3)
-      segmentMidAngle = (randomSegment * 120) + 60
+      // Segundo giro: aleatorio entre los segmentos que NO son "Nada ❌"
+      const allowedIndexes = options
+        .map((opt, i) => (opt.label !== 'Nada ❌' ? i : null))
+        .filter(i => i !== null)
+      const randomIndex = allowedIndexes[Math.floor(Math.random() * allowedIndexes.length)]
+      segmentMidAngle = (randomIndex * 90) + 45
     }
     
     const desiredMod = (270 - segmentMidAngle + 360) % 360
@@ -63,18 +61,13 @@ const App = () => {
       
       // Calcular qué opción ganó
       const finalRotation = targetRotation % 360
-      const segmentAngle = 360 / activeOptions.length
+      const segmentAngle = 360 / options.length
       // El puntero está en 270°, necesitamos encontrar qué segmento contiene ese ángulo
       // Deshacemos la rotación: 270 - finalRotation
       const pointerAngle = (270 - finalRotation + 360) % 360
       const winningIndex = Math.floor(pointerAngle / segmentAngle)
-      setResult(activeOptions[winningIndex])
+      setResult(options[winningIndex])
       setShowResult(true)
-      
-      if (newCount === 1) {
-        // Después del primer giro, eliminar "Nada ❌"
-        setActiveOptions(options.filter(opt => opt.label !== 'Nada ❌'))
-      }
       
       if (newCount >= 2) {
         setIsBlocked(true)
@@ -106,8 +99,8 @@ const App = () => {
           }}
         >
           <svg viewBox="0 0 350 350" className="wheel-svg">
-            {activeOptions.map((option, index) => {
-              const segmentAngle = 360 / activeOptions.length
+            {options.map((option, index) => {
+              const segmentAngle = 360 / options.length
               const angle = (index * segmentAngle) * (Math.PI / 180)
               const nextAngle = ((index + 1) * segmentAngle) * (Math.PI / 180)
               const x1 = 175 + 175 * Math.cos(angle)
