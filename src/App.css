@@ -1,0 +1,262 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.wheel-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at center, #2b1055 0%, #1a0a38 50%, #0d0521 100%);
+  padding: 20px;
+  font-family: 'Poppins', sans-serif;
+  overflow: hidden;
+}
+
+.title {
+  color: #ffd700;
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  font-weight: 800;
+  margin-bottom: 40px;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5), 0 4px 8px rgba(0, 0, 0, 0.5);
+  letter-spacing: 2px;
+  animation: titleGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlow {
+  from { text-shadow: 0 0 10px rgba(255, 215, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.5); }
+  to { text-shadow: 0 0 30px rgba(255, 215, 0, 0.8), 0 4px 8px rgba(0, 0, 0, 0.5); }
+}
+
+.wheel-wrapper {
+  position: relative;
+  width: 380px;
+  height: 380px;
+  margin-bottom: 45px;
+}
+
+/* Anillo exterior dorado con luces */
+.wheel-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    #ffd700, #b8860b, #ffd700, #daa520, #ffd700, #b8860b, #ffd700
+  );
+  box-shadow:
+    0 0 40px rgba(255, 215, 0, 0.35),
+    0 15px 40px rgba(0, 0, 0, 0.6),
+    inset 0 0 20px rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+
+.light {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fffbe6, #ffd700 60%, #b8860b);
+  box-shadow: 0 0 10px 3px rgba(255, 230, 120, 0.9);
+  animation: blink 1.2s ease-in-out infinite;
+}
+
+.light:nth-child(even) {
+  animation-delay: 0.6s;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; box-shadow: 0 0 12px 4px rgba(255, 230, 120, 0.95); }
+  50% { opacity: 0.35; box-shadow: 0 0 4px 1px rgba(255, 230, 120, 0.4); }
+}
+
+.wheel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -175px 0 0 -175px;
+  width: 350px;
+  height: 350px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 25px rgba(0, 0, 0, 0.45),
+    0 8px 25px rgba(0, 0, 0, 0.5);
+  border: 6px solid #fff8e1;
+  z-index: 2;
+}
+
+.wheel-segment {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  top: 0;
+  right: 0;
+  transform-origin: 0% 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(0, 0, 0, 0.15) 100%);
+}
+
+.segment-label {
+  color: white;
+  font-weight: 700;
+  font-size: 17px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translateX(-50%);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* Brillo superior tipo cristal */
+.wheel-gloss {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0) 80%);
+  pointer-events: none;
+}
+
+.wheel-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 110px;
+  height: 110px;
+  background: radial-gradient(circle at 30% 30%, #ffffff, #e8e8e8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.4),
+    0 0 25px rgba(255, 215, 0, 0.4);
+  z-index: 10;
+  border: 5px solid #ffd700;
+}
+
+.center-logo {
+  width: 78px;
+  height: 78px;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
+.wheel-pointer {
+  position: absolute;
+  top: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 22px solid transparent;
+  border-right: 22px solid transparent;
+  border-top: 44px solid #ffd700;
+  z-index: 20;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.7)) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
+}
+
+.wheel-pointer::after {
+  content: '';
+  position: absolute;
+  top: -44px;
+  left: -12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fffbe6, #ffd700 60%, #b8860b);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+}
+
+.spin-button {
+  padding: 16px 50px;
+  font-size: 19px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  color: #2b1055;
+  background: linear-gradient(135deg, #ffd700 0%, #ffb700 50%, #ff9500 100%);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow:
+    0 6px 20px rgba(255, 183, 0, 0.45),
+    inset 0 2px 4px rgba(255, 255, 255, 0.6);
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.spin-button:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow:
+    0 10px 30px rgba(255, 183, 0, 0.6),
+    inset 0 2px 4px rgba(255, 255, 255, 0.6);
+}
+
+.spin-button:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.spin-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 480px) {
+  .wheel-wrapper {
+    width: 300px;
+    height: 300px;
+  }
+
+  .wheel-ring {
+    width: 330px;
+    height: 330px;
+  }
+
+  .light {
+    transform: none !important;
+    display: none;
+  }
+
+  .wheel {
+    margin: -140px 0 0 -140px;
+    width: 280px;
+    height: 280px;
+  }
+
+  .wheel-center {
+    width: 90px;
+    height: 90px;
+  }
+
+  .center-logo {
+    width: 62px;
+    height: 62px;
+  }
+
+  .segment-label {
+    font-size: 14px;
+  }
+}
