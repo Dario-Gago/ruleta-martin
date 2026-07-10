@@ -167,20 +167,6 @@ const App = () => {
               ? '✨ Primera oportunidad ✨' 
               : '✨ Segunda oportunidad ✨'}
       </button>
-      {isBlocked && (
-        <button 
-          className="reset-button"
-          onClick={() => {
-            localStorage.removeItem(STORAGE_KEY)
-            setSpinCount(0)
-            setIsBlocked(false)
-            setRotation(0)
-          }}
-        >
-          🔄 Reiniciar
-        </button>
-      )}
-      
       {showResult && result && (
         <div className="result-overlay" onClick={() => setShowResult(false)}>
           <div className="result-modal" onClick={(e) => e.stopPropagation()}>
