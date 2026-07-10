@@ -1,22 +1,72 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import './App.css'
 import Logo from '../Logo.png'
 import options from './opciones.json'
 
+const STORAGE_KEY = 'ruleta_martin_giros'
+
 const App = () => {
   const [rotation, setRotation] = useState(0)
   const [isSpinning, setIsSpinning] = useState(false)
+  const [spinCount, setSpinCount] = useState(0)
+  const [isBlocked, setIsBlocked] = useState(false)
+  const [activeOptions, setActiveOptions] = useState(options)
   const wheelRef = useRef(null)
 
+  useEffect(() => {
+    const savedSpins = localStorage.getItem(STORAGE_KEY)
+    if (savedSpins) {
+      const count = parseInt(savedSpins, 10)
+      setSpinCount(count)
+      if (count >= 1) {
+        // Después del primer giro, eliminar "Nada ❌"
+        setActiveOptions(options.filter(opt => opt.label !== 'Nada ❌'))
+      }
+      if (count >= 2) {
+        setIsBlocked(true)
+      }
+    }
+  }, [])
+
   const spinWheel = () => {
-    if (isSpinning) return
+    if (isSpinning || isBlocked) return
     
     setIsSpinning(true)
-    const randomRotation = Math.floor(Math.random() * 360) + 720 + rotation
-    setRotation(randomRotation)
+    
+    // En coordenadas SVG el puntero (arriba) está en 270°
+    // Un punto en ángulo θ tras rotar R grados queda en θ + R
+    // Queremos θ + R ≡ 270 (mod 360) → R = 270 - θ
+    let segmentMidAngle
+    if (spinCount === 0) {
+      // Primer giro: forzar "Nada ❌" (índice 2 de 4, segmentos de 90°)
+      // Punto medio del segmento 2: 180° + 45° = 225°
+      segmentMidAngle = 225
+    } else {
+      // Segundo giro: aleatorio entre 3 segmentos (120° cada uno)
+      const randomSegment = Math.floor(Math.random() * 3)
+      segmentMidAngle = (randomSegment * 120) + 60
+    }
+    
+    const desiredMod = (270 - segmentMidAngle + 360) % 360
+    const currentMod = ((rotation % 360) + 360) % 360
+    const targetRotation = rotation + 720 + ((desiredMod - currentMod + 360) % 360)
+    
+    setRotation(targetRotation)
     
     setTimeout(() => {
       setIsSpinning(false)
+      const newCount = spinCount + 1
+      setSpinCount(newCount)
+      localStorage.setItem(STORAGE_KEY, newCount.toString())
+      
+      if (newCount === 1) {
+        // Después del primer giro, eliminar "Nada ❌"
+        setActiveOptions(options.filter(opt => opt.label !== 'Nada ❌'))
+      }
+      
+      if (newCount >= 2) {
+        setIsBlocked(true)
+      }
     }, 4000)
   }
 
@@ -44,17 +94,18 @@ const App = () => {
           }}
         >
           <svg viewBox="0 0 350 350" className="wheel-svg">
-            {options.map((option, index) => {
-              const angle = (index * 90) * (Math.PI / 180)
-              const nextAngle = ((index + 1) * 90) * (Math.PI / 180)
+            {activeOptions.map((option, index) => {
+              const segmentAngle = 360 / activeOptions.length
+              const angle = (index * segmentAngle) * (Math.PI / 180)
+              const nextAngle = ((index + 1) * segmentAngle) * (Math.PI / 180)
               const x1 = 175 + 175 * Math.cos(angle)
               const y1 = 175 + 175 * Math.sin(angle)
               const x2 = 175 + 175 * Math.cos(nextAngle)
               const y2 = 175 + 175 * Math.sin(nextAngle)
-              const textAngle = ((index * 90) + 45) * (Math.PI / 180)
+              const textAngle = ((index * segmentAngle) + segmentAngle / 2) * (Math.PI / 180)
               const textX = 175 + 115 * Math.cos(textAngle)
               const textY = 175 + 115 * Math.sin(textAngle)
-              const rotation = ((index * 90) + 45) + 90
+              const rotation = ((index * segmentAngle) + segmentAngle / 2) + 90
               
               return (
                 <g key={index}>
@@ -94,10 +145,29 @@ const App = () => {
       <button 
         className="spin-button"
         onClick={spinWheel}
-        disabled={isSpinning}
+        disabled={isSpinning || isBlocked}
       >
-        {isSpinning ? '🎲 Girando...' : '✨ Girar Ruleta ✨'}
+        {isBlocked 
+          ? '🚫 Ya no puedes girar' 
+          : isSpinning 
+            ? '🎲 Girando...' 
+            : spinCount === 0 
+              ? '✨ Primera oportunidad ✨' 
+              : '✨ Segunda oportunidad ✨'}
       </button>
+      {isBlocked && (
+        <button 
+          className="reset-button"
+          onClick={() => {
+            localStorage.removeItem(STORAGE_KEY)
+            setSpinCount(0)
+            setIsBlocked(false)
+            setRotation(0)
+          }}
+        >
+          🔄 Reiniciar
+        </button>
+      )}
     </div>
   )
 }
