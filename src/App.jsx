@@ -30,7 +30,7 @@ const App = () => {
 
   return (
     <div className="wheel-container">
-      <h1 className="title">🎰 Ruleta de la Suerte 🎰</h1>
+      <h1 className="title">🎰 Ruleta de Martín🎰</h1>
       <div className="wheel-wrapper">
         <div className="wheel-ring">
           {lights.map((_, i) => (
